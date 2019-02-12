@@ -25,14 +25,19 @@ namespace MysqlTest
         {
             #region 檢查mysql有沒有打開
             MySqlConnection CheckDB = new MySqlConnection(MySQLConnectionString);
-            try {
+            try
+            {
                 CheckDB.Open();
                 CheckDB.Close();
                 MySqlConnection.ClearPool(CheckDB);
             }
-            catch (Exception)
+            catch (MySqlException sqlEx)
             {
-                MessageBox.Show("請開啟MySQL，再執行本程式\n", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(sqlEx.Message, "SQL錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
                 Environment.Exit(Environment.ExitCode);
             }
@@ -71,46 +76,23 @@ namespace MysqlTest
                             data.Columns.AddRange(Column);
                         }
                     }
-                    addrow(initialization.Reader.GetString(0), string.Empty, string.Empty, data);
+                    addrow("select * from " + initialization.Reader.GetString(0), data);
                 }
                 searchListbox(tabControl1.SelectedIndex);
             }
         }
-        private void addrow(string tbName, string tbCol, string search, DataGridView data)
+        private void addrow(string DbCommand, DataGridView data)
         {
-           // using (SQLClass ) { }
-
-            MySqlConnection dc_count = new MySqlConnection(MySQLConnectionString);
-            MySqlCommand title_count = new MySqlCommand("select count(*) from INFORMATION_SCHEMA.COLUMNS where table_name='" + tbName + "'", dc_count);
-            dc_count.Open();
-            MySqlDataReader countReader = title_count.ExecuteReader();
-
-            MySqlConnection table_dc = new MySqlConnection(MySQLConnectionString);
-
-            string DbCommand = string.Empty;
-
-            if (tbCol == string.Empty && search == string.Empty)
-                DbCommand = "select * from " + tbName;
-            else
-                DbCommand = "select * from " + tbName + " where " + tbCol + " ='" + search + "'";
-
-            MySqlCommand rows = new MySqlCommand(DbCommand, table_dc);
-            table_dc.Open();
-            try
+            using (SQLClass rowData = new SQLClass(DbCommand, MySQLConnectionString))
             {
-                MySqlDataReader rowReader = rows.ExecuteReader();
-                while (countReader.Read())
-                    while (rowReader.Read())
-                    {
-                        DataGridViewRow row = (DataGridViewRow)data.Rows[0].Clone();
-                        for (int index = 0; index < countReader.GetInt32(0); index++)
-                            row.Cells[index].Value = rowReader.GetString(index);
-                        data.Rows.Add(row);
-                    }
+                while (rowData.Reader.Read())
+                {
+                    DataGridViewRow row = (DataGridViewRow)data.Rows[0].Clone();
+                    for (int index = 0; index < rowData.Reader.FieldCount; index++)
+                        row.Cells[index].Value = rowData.Reader.GetString(index);
+                    data.Rows.Add(row);
+                }
             }
-            catch (Exception) { }
-            dc_count.Close();
-            table_dc.Close();
         }
 
         private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
@@ -143,13 +125,14 @@ namespace MysqlTest
                 MessageBox.Show("Please select something in listbox");
                 return;
             }
+            string tbCol = listBox1.Items[listBox1.SelectedIndex].ToString();
+            string search = textBox1.Text;
             foreach (Control con in tabControl1.Controls)
             {
-                string tbCol = listBox1.Items[listBox1.SelectedIndex].ToString();
                 string tbName = ((TabPage)con).Text;
-                string search = textBox1.Text;
                 ((DataGridView)con.Controls[0]).Rows.Clear();
-                addrow(tbName, tbCol, search, (DataGridView)con.Controls[0]);
+                if (((DataGridView)con.Controls[0]).Columns.Contains(tbCol))//先確認page的Column裡面有沒有tbCol
+                    addrow("select * from " + tbName + " where " + tbCol + " ='" + search + "'", (DataGridView)con.Controls[0]);
             }
             timer1.Enabled = false;
         }
@@ -160,7 +143,7 @@ namespace MysqlTest
             {
                 ((DataGridView)con.Controls[0]).Rows.Clear();
                 string tbName = ((TabPage)con).Text;
-                addrow(tbName, string.Empty, string.Empty, (DataGridView)con.Controls[0]);
+                addrow("select * from " + tbName,(DataGridView)con.Controls[0]);
             }
             timer1.Enabled = true;
         }
@@ -171,7 +154,7 @@ namespace MysqlTest
             {
                 ((DataGridView)con.Controls[0]).Rows.Clear();
                 string tbName = ((TabPage)con).Text;
-                addrow(tbName, string.Empty, string.Empty, (DataGridView)con.Controls[0]);
+                addrow("select * from " + tbName, (DataGridView)con.Controls[0]);
             }
         }
     }

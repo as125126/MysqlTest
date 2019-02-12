@@ -24,6 +24,10 @@ namespace MysqlTest
                 databaseConnection.Open();
                 Reader = commandDatabase.ExecuteReader();
             }
+            catch (MySqlException sqlEx)
+            {
+                MessageBox.Show(sqlEx.Message, "SQL錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
