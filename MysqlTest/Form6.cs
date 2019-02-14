@@ -43,7 +43,7 @@ namespace MysqlTest
             }
             #endregion
 
-            using (SQLClass initialization = new SQLClass("show tables", MySQLConnectionString))
+            using (SQLClass initialization = new SQLClass("show tables", MySQLConnectionString))//初始化各個欄位
             {
                 for (int Index = 0; initialization.Reader.Read(); Index++)
                 {
@@ -76,12 +76,14 @@ namespace MysqlTest
                             data.Columns.AddRange(Column);
                         }
                     }
-                    addrow("select * from " + initialization.Reader.GetString(0), data);
+                    addrow("select * from " + initialization.Reader.GetString(0), data);//把資料放入欄位
                 }
                 searchListbox(tabControl1.SelectedIndex);
             }
         }
         private void addrow(string DbCommand, DataGridView data)
+        //DbCommand 指令
+        //data 放在哪一個表
         {
             using (SQLClass rowData = new SQLClass(DbCommand, MySQLConnectionString))
             {
@@ -148,7 +150,7 @@ namespace MysqlTest
             timer1.Enabled = true;
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void timer1_Tick(object sender, EventArgs e)//定時更新
         {
             foreach (Control con in tabControl1.Controls)
             {
@@ -159,5 +161,5 @@ namespace MysqlTest
         }
     }
 }
-//
+
 //tabControl1.SelectedIndex = 0;程式碼控制頁面
