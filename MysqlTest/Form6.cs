@@ -16,7 +16,7 @@ namespace MysqlTest
     public partial class Form6 : Form
     {
         string MySQLConnectionString = "datasource=127.0.0.1;port=3306;username=root;password=;database=db;sslmode = none;";
-
+        //更具自己的MySqlDB做更動
         public Form6()
         {
             InitializeComponent();
