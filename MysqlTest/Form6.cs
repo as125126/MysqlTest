@@ -34,6 +34,8 @@ namespace MysqlTest
             catch (MySqlException sqlEx)
             {
                 MessageBox.Show(sqlEx.Message, "SQL錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+                Environment.Exit(Environment.ExitCode);
             }
             catch (Exception ex)
             {
