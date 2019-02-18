@@ -20,9 +20,11 @@ namespace MysqlTest//用DataGridView來顯示圖片
         {
             InitializeComponent();
         }
-        #region 檢查有無Picture資料夾
+       
         private void Form4_Load(object sender, EventArgs e)
         {
+
+        #region 檢查有無Picture資料夾
             Console.WriteLine(Directory.GetCurrentDirectory());
             if (!Directory.Exists("Picture"))
                 Directory.CreateDirectory("Picture");

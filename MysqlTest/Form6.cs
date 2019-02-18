@@ -91,7 +91,8 @@ namespace MysqlTest
             {
                 while (rowData.Reader.Read())
                 {
-                    DataGridViewRow row = (DataGridViewRow)data.Rows[0].Clone();
+                    DataGridViewRow row = new DataGridViewRow();
+                    row.CreateCells(data);
                     for (int index = 0; index < rowData.Reader.FieldCount; index++)
                         row.Cells[index].Value = rowData.Reader.GetString(index);
                     data.Rows.Add(row);
